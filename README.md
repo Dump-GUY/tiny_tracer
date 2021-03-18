@@ -1,7 +1,13 @@
 # tiny_tracer
+
+[![GitHub release](https://img.shields.io/github/release/hasherezade/tiny_tracer.svg)](https://github.com/hasherezade/tiny_tracer/releases)
+
 A Pin Tool for tracing:
-+ API calls 
++ API calls
++ selected instructions: [RDTSC](https://c9x.me/x86/html/file_module_x86_id_278.html), [CPUID](https://c9x.me/x86/html/file_module_x86_id_45.html)
 + transition between sections of the traced module (helpful in finding OEP of the packed module)
+
+Bypasses the anti-tracing check based on RDTSC.
 
 Generates a report in a `.tag` format (which can be [loaded into other analysis tools](https://github.com/hasherezade/tiny_tracer/wiki/Using-the-TAGs-with-disassemblers-and-debuggers)):
 ```
@@ -23,5 +29,5 @@ i.e.
 
 How to build?
 -
-To compile the prepared project you need to use [Visual Studio >= 2012](https://visualstudio.microsoft.com/downloads/). It was tested with [Intel Pin 3.7 and Pin 3.10](https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads).<br/>
+To compile the prepared project you need to use [Visual Studio >= 2012](https://visualstudio.microsoft.com/downloads/). It was tested with [Intel Pin 3.16](https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads).<br/>
 Clone this repo into `\source\tools` that is inside your Pin root directory. Open the project in Visual Studio and build. More details about the installation and usage you will find on [the project's Wiki](https://github.com/hasherezade/tiny_tracer/wiki).<br/>

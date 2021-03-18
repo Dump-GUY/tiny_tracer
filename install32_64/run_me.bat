@@ -22,16 +22,29 @@ set TRACED_MODULE=%TARGET_APP%
 set TAG_FILE="%TRACED_MODULE%.tag"
 set ENABLE_SHORT_LOGGING=1
 set FOLLOW_SHELLCODES=1
+set TRACE_RDTSC=0
+
+rem WATCH_BEFORE - a file with a list of functions which's parameters will be logged before execution
+rem The file must be a list of records in a format: [dll_name];[func_name];[parameters_count]
+set WATCH_BEFORE=%PIN_TOOLS_DIR%\params.txt
+
+set DLL_LOAD32=%PIN_TOOLS_DIR%\dll_load32.exe
+set DLL_LOAD64=%PIN_TOOLS_DIR%\dll_load64.exe
 
 %PIN_TOOLS_DIR%\pe_check.exe "%TARGET_APP%"
 if %errorlevel% == 32 (
 	echo 32bit selected
 	set PINTOOL=%PINTOOL32%
+	set DLL_LOAD=%DLL_LOAD32%
 )
 if %errorlevel% == 64 (
 	echo 64bit selected
 	set PINTOOL=%PINTOOL64%
+	set DLL_LOAD=%DLL_LOAD64%
 )
+
+rem The exports that you want to call from a dll, in format: [name1];[name2] or [#ordinal1];[#ordinal2]
+set DLL_EXPORTS=""
 
 echo Target module: "%TRACED_MODULE%"
 echo Tag file: %TAG_FILE%
@@ -40,13 +53,14 @@ if [%IS_ADMIN%] == [A] (
 )
 
 set ADMIN_CMD=%PIN_TOOLS_DIR%\sudo.vbs
-set DLL_CMD=%PIN_DIR%\pin.exe -t %PINTOOL% -m "%TRACED_MODULE%" -o %TAG_FILE% -f %FOLLOW_SHELLCODES% -s %ENABLE_SHORT_LOGGING% -- regsvr32.exe /s "%TARGET_APP%"
-set EXE_CMD=%PIN_DIR%\pin.exe -t %PINTOOL% -m "%TRACED_MODULE%" -o %TAG_FILE% -f %FOLLOW_SHELLCODES% -s %ENABLE_SHORT_LOGGING% -- "%TARGET_APP%" 
+
+set DLL_CMD=%PIN_DIR%\pin.exe -t %PINTOOL% -m "%TRACED_MODULE%" -o %TAG_FILE% -f %FOLLOW_SHELLCODES% -d %TRACE_RDTSC% -s %ENABLE_SHORT_LOGGING% -b "%WATCH_BEFORE%" -- "%DLL_LOAD%" "%TARGET_APP%" %DLL_EXPORTS%
+set EXE_CMD=%PIN_DIR%\pin.exe -t %PINTOOL% -m "%TRACED_MODULE%" -o %TAG_FILE% -f %FOLLOW_SHELLCODES% -d %TRACE_RDTSC% -s %ENABLE_SHORT_LOGGING% -b "%WATCH_BEFORE%" -- "%TARGET_APP%" 
 
 ;rem "Trace EXE"
 if [%PE_TYPE%] == [exe] (
 	if [%IS_ADMIN%] == [A] (
-		%ADMIN_CMD% "%EXE_CMD%"
+		%ADMIN_CMD% %EXE_CMD%
 	) else (
 		%EXE_CMD%
 	)
@@ -54,7 +68,7 @@ if [%PE_TYPE%] == [exe] (
 ;rem "Trace DLL"
 if [%PE_TYPE%] == [dll] (
 	if [%IS_ADMIN%] == [A] (
-		%ADMIN_CMD% "%DLL_CMD%"
+		%ADMIN_CMD% %DLL_CMD%
 	) else (
 		%DLL_CMD%
 	)

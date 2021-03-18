@@ -27,11 +27,16 @@ public:
     }
 
     void logCall(const ADDRINT prevModuleBase, const ADDRINT prevAddr, bool isRVA, const std::string module, const std::string func = "");
-    void logCall(const ADDRINT prevAddr, const ADDRINT calledPageBase, const ADDRINT callAddr);
+    void logCall(const ADDRINT prevBase, const ADDRINT prevAddr, const ADDRINT calledPageBase, const ADDRINT callAddr);
     void logSectionChange(const ADDRINT addr, std::string sectionName);
     void logNewSectionCalled(const ADDRINT addFrom, std::string prevSection, std::string currSection);
+    void logRdtsc(const ADDRINT base, const ADDRINT rva);
+    void logCpuid(const ADDRINT base, const ADDRINT rva, const ADDRINT param);
+
+    void logLine(std::string str);
 
 protected:
+
     bool createFile()
     {
         if (m_traceFile.is_open()) {
